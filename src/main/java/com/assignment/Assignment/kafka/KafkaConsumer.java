@@ -1,20 +1,19 @@
 package com.assignment.Assignment.kafka;
 
-import com.assignment.Assignment.entity.primary.SmsRequest;
-import com.assignment.Assignment.entity.primary.SmsRequestElasticSearch;
-import com.assignment.Assignment.entity.primary.SmsRequestStatus;
-import com.assignment.Assignment.entity.primary.requestJson.Channels;
-import com.assignment.Assignment.entity.primary.requestJson.Destination;
-import com.assignment.Assignment.entity.primary.requestJson.RequestJsonForThirdPartyApi;
-import com.assignment.Assignment.entity.primary.requestJson.Sms;
-import com.assignment.Assignment.entity.primary.responseJson.ResponseJsonFromThirdPartyApi;
-import com.assignment.Assignment.repository.primary.SmsRequestESRepository;
-import com.assignment.Assignment.repository.primary.SmsRequestRepository;
-import com.assignment.Assignment.repository.secondary.BlacklistedRepositoryRedisImplementation;
+import com.assignment.Assignment.entity.SmsRequest;
+import com.assignment.Assignment.entity.SmsRequestElasticSearch;
+import com.assignment.Assignment.entity.SmsRequestStatus;
+import com.assignment.Assignment.entity.requestJson.Channels;
+import com.assignment.Assignment.entity.requestJson.Destination;
+import com.assignment.Assignment.entity.requestJson.RequestJsonForThirdPartyApi;
+import com.assignment.Assignment.entity.requestJson.Sms;
+import com.assignment.Assignment.entity.responseJson.ResponseJsonFromThirdPartyApi;
+import com.assignment.Assignment.repository.SmsRequestESRepository;
+import com.assignment.Assignment.repository.SmsRequestRepository;
+import com.assignment.Assignment.repository.BlacklistedRepositoryRedisImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +39,7 @@ public class KafkaConsumer {
 	SmsRequestESRepository smsRequestESRepository;
 
 	@Autowired
-	BlacklistedRepositoryRedisImplementation blacklistedRepository;
+	BlacklistedRepositoryRedisImpl blacklistedRepository;
 	private RestTemplate restTemplate = new RestTemplate();
 	private static final String KEY = "BLACKLISTED";
 
@@ -81,7 +80,7 @@ public class KafkaConsumer {
 		// Third party API call
 		ResponseJsonFromThirdPartyApi response = callThirdPartyApi(smsRequest);
 		String description = response.getResponse().get(0).getDescription();
-		smsRequest.setFailureCode(response.getResponse().get(0).getCode());
+		smsRequest.setStatusCode(response.getResponse().get(0).getCode());
 		if (description.equalsIgnoreCase("queued")) {
 			smsRequest.setStatus(SmsRequestStatus.valueOf("QUEUED"));
 		} else {

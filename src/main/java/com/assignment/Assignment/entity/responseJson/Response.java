@@ -1,6 +1,5 @@
-package com.assignment.Assignment.entity.primary.responseJson;
+package com.assignment.Assignment.entity.responseJson;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

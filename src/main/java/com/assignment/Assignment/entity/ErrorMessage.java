@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary;
+package com.assignment.Assignment.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.assignment.Assignment.config;
 
-import com.assignment.Assignment.entity.secondary.BlacklistRequest;
+import com.assignment.Assignment.entity.BlacklistRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

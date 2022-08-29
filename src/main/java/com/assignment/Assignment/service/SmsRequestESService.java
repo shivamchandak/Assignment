@@ -1,6 +1,6 @@
-package com.assignment.Assignment.service.primary;
+package com.assignment.Assignment.service;
 
-import com.assignment.Assignment.entity.primary.SmsRequestElasticSearch;
+import com.assignment.Assignment.entity.SmsRequestElasticSearch;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.Date;

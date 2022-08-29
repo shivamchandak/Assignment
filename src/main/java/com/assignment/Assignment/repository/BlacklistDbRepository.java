@@ -1,6 +1,6 @@
-package com.assignment.Assignment.repository.secondary;
+package com.assignment.Assignment.repository;
 
-import com.assignment.Assignment.entity.secondary.BlacklistDB;
+import com.assignment.Assignment.entity.BlacklistDB;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

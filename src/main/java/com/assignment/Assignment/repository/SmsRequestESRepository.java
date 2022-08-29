@@ -1,6 +1,6 @@
-package com.assignment.Assignment.repository.primary;
+package com.assignment.Assignment.repository;
 
-import com.assignment.Assignment.entity.primary.SmsRequestElasticSearch;
+import com.assignment.Assignment.entity.SmsRequestElasticSearch;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;

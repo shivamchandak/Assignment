@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary;
+package com.assignment.Assignment.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class SmsRequest {
 	private String phoneNumber;
 
 	private String message;
-	private String failureCode;
+	private String statusCode;
 	private String failureComments;
 
 	@Enumerated(EnumType.STRING)

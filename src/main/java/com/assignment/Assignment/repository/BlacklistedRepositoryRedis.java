@@ -1,6 +1,6 @@
-package com.assignment.Assignment.repository.secondary;
+package com.assignment.Assignment.repository;
 
-import com.assignment.Assignment.entity.secondary.BlacklistRequest;
+import com.assignment.Assignment.entity.BlacklistRequest;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 
 import java.util.List;

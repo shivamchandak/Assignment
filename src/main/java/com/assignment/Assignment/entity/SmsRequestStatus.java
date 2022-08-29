@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary;
+package com.assignment.Assignment.entity;
 
 public enum SmsRequestStatus {
 

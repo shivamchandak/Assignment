@@ -1,7 +1,7 @@
-package com.assignment.Assignment.repository.secondary;
+package com.assignment.Assignment.repository;
 
-import com.assignment.Assignment.entity.secondary.BlacklistDB;
-import com.assignment.Assignment.entity.secondary.BlacklistRequest;
+import com.assignment.Assignment.entity.BlacklistDB;
+import com.assignment.Assignment.entity.BlacklistRequest;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Vector;
 
 @Repository
-public class BlacklistedRepositoryRedisImplementation implements BlacklistedRepositoryRedis {
+public class BlacklistedRepositoryRedisImpl implements BlacklistedRepositoryRedis {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
@@ -21,7 +21,7 @@ public class BlacklistedRepositoryRedisImplementation implements BlacklistedRepo
 	@Autowired
 	private BlacklistDbRepository blacklistDbRepository;
 	private static final String KEY = "BLACKLISTED";
-	private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistedRepositoryRedisImplementation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistedRepositoryRedisImpl.class);
 
 	@Override
 	public void addNumberToBlacklistRedis (BlacklistRequest blacklistRequest) throws InvalidPhoneNumberException {

@@ -1,7 +1,7 @@
-package com.assignment.Assignment.service.primary;
+package com.assignment.Assignment.service;
 
-import com.assignment.Assignment.entity.primary.SmsRequestElasticSearch;
-import com.assignment.Assignment.repository.primary.SmsRequestESRepository;
+import com.assignment.Assignment.entity.SmsRequestElasticSearch;
+import com.assignment.Assignment.repository.SmsRequestESRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class SmsRequestESServiceImplementation implements SmsRequestESService {
+public class SmsRequestESServiceImpl implements SmsRequestESService {
 	SmsRequestESRepository smsRequestESRepository;
 
 	@Override

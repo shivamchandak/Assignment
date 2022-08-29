@@ -1,6 +1,6 @@
 package com.assignment.Assignment.error;
 
-import com.assignment.Assignment.entity.primary.ErrorMessage;
+import com.assignment.Assignment.entity.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

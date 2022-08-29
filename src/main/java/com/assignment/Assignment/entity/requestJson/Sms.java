@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary.requestJson;
+package com.assignment.Assignment.entity.requestJson;
 
 import lombok.Builder;
 import lombok.Data;

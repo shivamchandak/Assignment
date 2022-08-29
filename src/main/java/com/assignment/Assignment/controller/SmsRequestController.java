@@ -1,17 +1,17 @@
 package com.assignment.Assignment.controller;
 
-import com.assignment.Assignment.entity.primary.RequestBodyForSearch;
-import com.assignment.Assignment.entity.primary.SmsRequest;
-import com.assignment.Assignment.entity.primary.SmsRequestElasticSearch;
-import com.assignment.Assignment.entity.primary.SuccessResponse;
-import com.assignment.Assignment.entity.secondary.BlacklistRequest;
+import com.assignment.Assignment.entity.RequestBodyForSearch;
+import com.assignment.Assignment.entity.SmsRequest;
+import com.assignment.Assignment.entity.SmsRequestElasticSearch;
+import com.assignment.Assignment.entity.SuccessResponse;
+import com.assignment.Assignment.entity.BlacklistRequest;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import com.assignment.Assignment.error.PhoneNumberMissingException;
 import com.assignment.Assignment.error.SmsNotFoundException;
 import com.assignment.Assignment.kafka.KafkaProducer;
-import com.assignment.Assignment.repository.primary.SmsRequestESRepository;
-import com.assignment.Assignment.service.primary.SmsRequestService;
-import com.assignment.Assignment.service.secondary.BlacklistedService;
+import com.assignment.Assignment.repository.SmsRequestESRepository;
+import com.assignment.Assignment.service.SmsRequestService;
+import com.assignment.Assignment.service.BlacklistedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

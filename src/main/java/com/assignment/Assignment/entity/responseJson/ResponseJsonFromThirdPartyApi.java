@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary.responseJson;
+package com.assignment.Assignment.entity.responseJson;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

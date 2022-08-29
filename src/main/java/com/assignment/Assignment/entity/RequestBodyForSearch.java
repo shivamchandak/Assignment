@@ -1,4 +1,4 @@
-package com.assignment.Assignment.entity.primary;
+package com.assignment.Assignment.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

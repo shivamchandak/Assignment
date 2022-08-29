@@ -1,11 +1,11 @@
-package com.assignment.Assignment.service.primary;
+package com.assignment.Assignment.service;
 
-import com.assignment.Assignment.entity.primary.SmsRequest;
-import com.assignment.Assignment.entity.primary.SmsRequestStatus;
+import com.assignment.Assignment.entity.SmsRequest;
+import com.assignment.Assignment.entity.SmsRequestStatus;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import com.assignment.Assignment.error.PhoneNumberMissingException;
 import com.assignment.Assignment.error.SmsNotFoundException;
-import com.assignment.Assignment.repository.primary.SmsRequestRepository;
+import com.assignment.Assignment.repository.SmsRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SmsRequestServiceImplementation implements SmsRequestService {
+public class SmsRequestServiceImpl implements SmsRequestService {
 
 	@Autowired
 	SmsRequestRepository smsRequestRepository;

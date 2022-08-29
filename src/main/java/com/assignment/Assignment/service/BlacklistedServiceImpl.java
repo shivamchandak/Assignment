@@ -1,15 +1,15 @@
-package com.assignment.Assignment.service.secondary;
+package com.assignment.Assignment.service;
 
-import com.assignment.Assignment.entity.secondary.BlacklistRequest;
+import com.assignment.Assignment.entity.BlacklistRequest;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
-import com.assignment.Assignment.repository.secondary.BlacklistedRepositoryRedis;
+import com.assignment.Assignment.repository.BlacklistedRepositoryRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class BlacklistedServiceImplementation implements BlacklistedService {
+public class BlacklistedServiceImpl implements BlacklistedService {
 
 	@Autowired
 	BlacklistedRepositoryRedis blacklistedRepositoryRedis;

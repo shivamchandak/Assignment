@@ -1,6 +1,6 @@
-package com.assignment.Assignment.repository.primary;
+package com.assignment.Assignment.repository;
 
-import com.assignment.Assignment.entity.primary.SmsRequest;
+import com.assignment.Assignment.entity.SmsRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
