@@ -9,7 +9,8 @@ import java.util.List;
 public interface SmsRequestESService {
 	void save (SmsRequestElasticSearch smsRequestElasticSearch);
 
-	List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (String phoneNumber, Date startTime, Date endTime);
+	List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (
+			String phoneNumber, Date startTime, Date endTime, PageRequest pageRequest);
 
 	List<SmsRequestElasticSearch> findByMessageContaining (String text, PageRequest pageRequest);
 

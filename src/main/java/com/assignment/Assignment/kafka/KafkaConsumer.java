@@ -11,9 +11,11 @@ import com.assignment.Assignment.entity.responseJson.ResponseJsonFromThirdPartyA
 import com.assignment.Assignment.repository.SmsRequestESRepository;
 import com.assignment.Assignment.repository.SmsRequestRepository;
 import com.assignment.Assignment.repository.BlacklistedRepositoryRedisImpl;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,14 +45,24 @@ public class KafkaConsumer {
 	private RestTemplate restTemplate = new RestTemplate();
 	private static final String KEY = "BLACKLISTED";
 
-//	@Value("${URL}")
-//	private String URL;
-// all constants in app.properties
+	@Value("${topicName}")
+	private String topicName;
+
+	@Value("${URL}")
+	private String URL;
+
+	@Value("${apiKey}")
+	private String apiKey;
+
+	@Value("${groupId}")
+	private String groupId;
 
 	@KafkaListener(topics = "notification.send_sms", groupId = "myConsumerGroup")
 	public void consume (String message) {
 
 		LOGGER.info(String.format("Request Id received -> %s", message));
+		LOGGER.info(String.format("Topic Name -> %s", topicName));
+
 		SmsRequest smsRequest = smsRequestRepository.findById(Long.parseLong(message)).get();
 		System.out.println(smsRequest.toString());
 
@@ -95,10 +107,9 @@ public class KafkaConsumer {
 
 	public ResponseJsonFromThirdPartyApi callThirdPartyApi (SmsRequest smsRequest) {
 
-		String url = "https://api.imiconnect.in/resources/v1/messaging";
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("key", "93ceffda-5941-11ea-9da9-025282c394f2");
+		headers.set("key", apiKey);
 
 		Sms sms = Sms.builder()
 				.text(smsRequest.getMessage())
@@ -128,7 +139,7 @@ public class KafkaConsumer {
 		HttpEntity<RequestJsonForThirdPartyApi> entity =
 				new HttpEntity<RequestJsonForThirdPartyApi>(requestJson, headers);
 		ResponseJsonFromThirdPartyApi response =
-				restTemplate.postForEntity(url, entity,
+				restTemplate.postForEntity(URL, entity,
 						ResponseJsonFromThirdPartyApi.class).getBody();
 		return response;
 	}

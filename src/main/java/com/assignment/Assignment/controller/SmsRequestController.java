@@ -1,10 +1,6 @@
 package com.assignment.Assignment.controller;
 
-import com.assignment.Assignment.entity.RequestBodyForSearch;
-import com.assignment.Assignment.entity.SmsRequest;
-import com.assignment.Assignment.entity.SmsRequestElasticSearch;
-import com.assignment.Assignment.entity.SuccessResponse;
-import com.assignment.Assignment.entity.BlacklistRequest;
+import com.assignment.Assignment.entity.*;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import com.assignment.Assignment.error.PhoneNumberMissingException;
 import com.assignment.Assignment.error.SmsNotFoundException;
@@ -19,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -32,6 +29,8 @@ public class SmsRequestController {
 	KafkaProducer kafkaProducer;
 	@Autowired
 	SmsRequestESRepository smsRequestESRepository;
+
+	//ConfigProperties configProperties;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SmsRequestController.class);
 
 	@PostMapping("v1/sms/send")
@@ -51,7 +50,9 @@ public class SmsRequestController {
 
 	@GetMapping("v1/sms/getAll")
 	public List<SmsRequest> fetchAllSms () {
+		//LOGGER.info("the config props are: ", configProperties.getTopicName());
 		return smsRequestService.fetchAllSms();
+
 	}
 
 	@GetMapping("v1/sms/{requestId}")
@@ -80,56 +81,33 @@ public class SmsRequestController {
 	}
 
 	//  read on transactional.
-//    @DeleteMapping("v1/blacklist/delete/{phoneNumber}")
-//    @Transactional
-//    public String removeNumberFromBlacklist(
-//            @PathVariable("phoneNumber") String phoneNumber) {
-//        blacklistedService.removeNumberFromBlacklist(phoneNumber);
-//        return "Number successfully deleted from blacklist!";
-//    }
 
-//	public void buildEntityForElasticSearch (SmsRequest smsRequest) {
-//		SmsRequestElasticSearch smsRequestElasticSearch = SmsRequestElasticSearch.builder()
-//				.id(smsRequest.getRequestId())
-//				.message(smsRequest.getMessage())
-//				.phoneNumber(smsRequest.getPhoneNumber())
-//				.createdAt(smsRequest.getCreatedAt())
-//				.build();
-//		LOGGER.info(String.format("the SmsRequest entity is %s", smsRequest.toString()));
-//		LOGGER.info(String.format("the ES entity is %s", smsRequestElasticSearch.toString()));
-//		smsRequestESRepository.save(smsRequestElasticSearch);
-//	}
-
-//    @GetMapping("v1/getAllSmsInElasticSearch")
-//    public List<SmsRequestElasticSearch> getAllSms() {
-//
-//        return smsRequestESRepository.findAll(Pageable.unpaged()).toList();
-//    }
-
-	// Iterable to list
 	@GetMapping("v1/getAllSmsInElasticSearch")
-	public Iterable<SmsRequestElasticSearch> getAllSms () {
-		return smsRequestESRepository.findAll();
+	public List<SmsRequestElasticSearch> getAllSms () {
+		List<SmsRequestElasticSearch> smsRequest=new ArrayList<SmsRequestElasticSearch>();
+
+		Iterable<SmsRequestElasticSearch> iterable= smsRequestESRepository.findAll();
+		for(SmsRequestElasticSearch eachSms:iterable) {
+			smsRequest.add(eachSms);
+		}
+		return smsRequest;
 	}
 
 	@PostMapping("v1/getAllSmsBetweenTimes")
 	public List<SmsRequestElasticSearch> getAllSmsBetweenTimes (
-			@RequestBody RequestBodyForSearch requestBody) {
+			@RequestBody RequestBodyForTimeSearch requestBody) {
 		//LOGGER.info(String.format("Request body is %s", requestBody.toString()));
 		LOGGER.info("{}", requestBody);
 		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(
 				requestBody.getPhoneNumber(), requestBody.getStartTime(),
-				requestBody.getEndTime());
+				requestBody.getEndTime(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}
 
-	// set default pageSize and offset. if user doesnt enter, you need to have default values.
-	@GetMapping("v1/getAllSmsContainingText/{text}/{offset}/{pageSize}")
+	@PostMapping("v1/getAllSmsContainingText")
 	public List<SmsRequestElasticSearch> getAllSmsContainingText (
-			@PathVariable("text") String text,
-			@PathVariable("offset") int offset,
-			@PathVariable("pageSize") int pageSize) {
+			@RequestBody RequestBodyForTextSearch requestBody) {
 		return smsRequestESRepository.findByMessageContaining(
-				text, PageRequest.of(offset, pageSize));
+				requestBody.getText(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}
 }
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface SmsRequestESRepository extends ElasticsearchRepository<SmsRequestElasticSearch, Long> {
-	List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (String phoneNumber, Date startTime, Date endTime);
+	List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (String phoneNumber, Date startTime, Date endTime, PageRequest of);
 
 	List<SmsRequestElasticSearch> findByMessageContaining (String text, PageRequest pageable);
 

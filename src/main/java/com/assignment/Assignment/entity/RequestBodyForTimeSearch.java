@@ -9,10 +9,13 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestBodyForSearch {
+public class RequestBodyForTimeSearch {
+	public RequestBodyForTimeSearch() {
+		this.pageNumber = 0;
+		this.pageSize = 100;
+	}
 
 	private String phoneNumber;
 
@@ -21,4 +24,7 @@ public class RequestBodyForSearch {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endTime;
+
+	private int pageNumber;
+	private int pageSize;
 }

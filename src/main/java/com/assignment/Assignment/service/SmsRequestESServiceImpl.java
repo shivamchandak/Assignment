@@ -17,9 +17,10 @@ public class SmsRequestESServiceImpl implements SmsRequestESService {
 		smsRequestESRepository.save(smsRequestElasticSearch);
 	}
 
+
 	@Override
-	public List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (String phoneNumber, Date startTime, Date endTime) {
-		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(phoneNumber, startTime, endTime);
+	public List<SmsRequestElasticSearch> findByPhoneNumberAndCreatedAtBetween (String phoneNumber, Date startTime, Date endTime, PageRequest pageRequest) {
+		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(phoneNumber, startTime, endTime, pageRequest);
 	}
 
 	@Override
