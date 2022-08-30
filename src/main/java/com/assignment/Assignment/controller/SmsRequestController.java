@@ -5,9 +5,9 @@ import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import com.assignment.Assignment.error.PhoneNumberMissingException;
 import com.assignment.Assignment.error.SmsNotFoundException;
 import com.assignment.Assignment.kafka.KafkaProducer;
-import com.assignment.Assignment.repository.SmsRequestESRepository;
+import com.assignment.Assignment.service.SmsRequestESService;
 import com.assignment.Assignment.service.SmsRequestService;
-import com.assignment.Assignment.service.BlacklistedService;
+import com.assignment.Assignment.service.BlacklistRedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,12 @@ public class SmsRequestController {
 	@Autowired
 	SmsRequestService smsRequestService;
 	@Autowired
-	BlacklistedService blacklistedService;
+	BlacklistRedisService blacklistedService;
 	@Autowired
 	KafkaProducer kafkaProducer;
 	@Autowired
-	SmsRequestESRepository smsRequestESRepository;
+	SmsRequestESService smsRequestESService;
 
-	//ConfigProperties configProperties;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SmsRequestController.class);
 
 	@PostMapping("v1/sms/send")
@@ -50,7 +49,6 @@ public class SmsRequestController {
 
 	@GetMapping("v1/sms/getAll")
 	public List<SmsRequest> fetchAllSms () {
-		//LOGGER.info("the config props are: ", configProperties.getTopicName());
 		return smsRequestService.fetchAllSms();
 
 	}
@@ -64,19 +62,19 @@ public class SmsRequestController {
 	@PostMapping("v1/blacklist")
 	public ResponseEntity<String> addNumberToBlacklist (
 			@RequestBody BlacklistRequest blacklistedNumber) throws InvalidPhoneNumberException {
-		blacklistedService.addNumberToBlacklistRedis(blacklistedNumber);
+		blacklistedService.addNumberToBlacklist(blacklistedNumber);
 		return ResponseEntity.ok("Number added to blacklist.");
 	}
 
 	@GetMapping("v1/blacklist")
 	public List<String> getAllBlacklistedNumbers () {
-		return blacklistedService.getAllBlacklistedNumbersRedis();
+		return blacklistedService.getAllBlacklistedNumbers();
 	}
 
 	@DeleteMapping("v1/blacklist/{phoneNumber}")
 	public ResponseEntity<String> deleteBlacklistedNumberFromId (
 			@PathVariable("phoneNumber") String phoneNumber) {
-		blacklistedService.deleteBlacklistedNumberFromId(phoneNumber);
+		blacklistedService.deleteBlacklistedNumber(phoneNumber);
 		return ResponseEntity.ok("Number deleted from blacklist successfully!");
 	}
 
@@ -84,9 +82,9 @@ public class SmsRequestController {
 
 	@GetMapping("v1/getAllSmsInElasticSearch")
 	public List<SmsRequestElasticSearch> getAllSms () {
-		List<SmsRequestElasticSearch> smsRequest=new ArrayList<SmsRequestElasticSearch>();
+		List<SmsRequestElasticSearch> smsRequest=new ArrayList<>();
 
-		Iterable<SmsRequestElasticSearch> iterable= smsRequestESRepository.findAll();
+		Iterable<SmsRequestElasticSearch> iterable= smsRequestESService.findAll();
 		for(SmsRequestElasticSearch eachSms:iterable) {
 			smsRequest.add(eachSms);
 		}
@@ -96,9 +94,12 @@ public class SmsRequestController {
 	@PostMapping("v1/getAllSmsBetweenTimes")
 	public List<SmsRequestElasticSearch> getAllSmsBetweenTimes (
 			@RequestBody RequestBodyForTimeSearch requestBody) {
-		//LOGGER.info(String.format("Request body is %s", requestBody.toString()));
 		LOGGER.info("{}", requestBody);
-		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(
+//		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(
+//				requestBody.getPhoneNumber(), requestBody.getStartTime(),
+//				requestBody.getEndTime(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
+
+		return smsRequestESService.findByPhoneNumberAndCreatedAtBetween(
 				requestBody.getPhoneNumber(), requestBody.getStartTime(),
 				requestBody.getEndTime(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}
@@ -106,7 +107,7 @@ public class SmsRequestController {
 	@PostMapping("v1/getAllSmsContainingText")
 	public List<SmsRequestElasticSearch> getAllSmsContainingText (
 			@RequestBody RequestBodyForTextSearch requestBody) {
-		return smsRequestESRepository.findByMessageContaining(
+		return smsRequestESService.findByMessageContaining(
 				requestBody.getText(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}
 }

@@ -10,8 +10,7 @@ import com.assignment.Assignment.entity.requestJson.Sms;
 import com.assignment.Assignment.entity.responseJson.ResponseJsonFromThirdPartyApi;
 import com.assignment.Assignment.repository.SmsRequestESRepository;
 import com.assignment.Assignment.repository.SmsRequestRepository;
-import com.assignment.Assignment.repository.BlacklistedRepositoryRedisImpl;
-import lombok.Data;
+import com.assignment.Assignment.repository.BlacklistRedisRepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class KafkaConsumer {
 	SmsRequestESRepository smsRequestESRepository;
 
 	@Autowired
-	BlacklistedRepositoryRedisImpl blacklistedRepository;
+	BlacklistRedisRepositoryImpl blacklistedRepository;
 	private RestTemplate restTemplate = new RestTemplate();
 	private static final String KEY = "BLACKLISTED";
 
@@ -54,8 +53,6 @@ public class KafkaConsumer {
 	@Value("${apiKey}")
 	private String apiKey;
 
-	@Value("${groupId}")
-	private String groupId;
 
 	@KafkaListener(topics = "notification.send_sms", groupId = "myConsumerGroup")
 	public void consume (String message) {
@@ -64,7 +61,7 @@ public class KafkaConsumer {
 		LOGGER.info(String.format("Topic Name -> %s", topicName));
 
 		SmsRequest smsRequest = smsRequestRepository.findById(Long.parseLong(message)).get();
-		System.out.println(smsRequest.toString());
+		LOGGER.info(String.format("the current sms status is: %s", smsRequest));
 
 		String phoneNumber = smsRequest.getPhoneNumber();
 		LOGGER.info(String.format("checking if number is blacklisted %s", phoneNumber));
@@ -73,10 +70,10 @@ public class KafkaConsumer {
 		if (blacklistedRepository.isPresentInBlacklist(phoneNumber)) {
 			smsRequest.setStatus(SmsRequestStatus.valueOf("NUMBER_BLACKLISTED"));
 			smsRequestRepository.save(smsRequest);
-			LOGGER.info(String.format("the current sms status is: %s", smsRequest.toString()));
+			LOGGER.info(String.format("the current sms status is: %s", smsRequest));
 			return;
 		}
-		LOGGER.info(String.format("the current sms status is: %s", smsRequest.toString()));
+		LOGGER.info(String.format("the current sms status is: %s", smsRequest));
 
 		// Add sms to elastic search only if it is not blacklisted.
 		SmsRequestElasticSearch smsRequestElasticSearch = SmsRequestElasticSearch.builder()
@@ -85,8 +82,8 @@ public class KafkaConsumer {
 				.phoneNumber(smsRequest.getPhoneNumber())
 				.createdAt(smsRequest.getCreatedAt())
 				.build();
-		LOGGER.info(String.format("the SmsRequest entity is %s", smsRequest.toString()));
-		LOGGER.info(String.format("the ES entity is %s", smsRequestElasticSearch.toString()));
+		LOGGER.info(String.format("the SmsRequest entity is %s", smsRequest));
+		LOGGER.info(String.format("the ES entity is %s", smsRequestElasticSearch));
 		smsRequestESRepository.save(smsRequestElasticSearch);
 
 		// Third party API call
@@ -100,8 +97,8 @@ public class KafkaConsumer {
 			smsRequest.setFailureComments(description);
 		}
 		smsRequestRepository.save(smsRequest);
-		LOGGER.info(String.format("the current sms status is: %s", smsRequest.toString()));
-		LOGGER.info(String.format("the response from 3P api is %s", response.toString()));
+		LOGGER.info(String.format("the current sms status is: %s", smsRequest));
+		LOGGER.info(String.format("the response from 3P api is %s", response));
 
 	}
 
@@ -119,14 +116,14 @@ public class KafkaConsumer {
 				.sms(sms)
 				.build();
 
-		ArrayList<String> msisdn = new ArrayList<String>();
+		ArrayList<String> msisdn = new ArrayList<>();
 		msisdn.add(smsRequest.getPhoneNumber());
 
 		Destination dest = Destination.builder()
 				.msisdn(msisdn)
 				.correlationid("some_unique_id")
 				.build();
-		ArrayList<Destination> destination = new ArrayList<Destination>();
+		ArrayList<Destination> destination = new ArrayList<>();
 		destination.add(dest);
 
 
@@ -137,7 +134,7 @@ public class KafkaConsumer {
 				.build();
 
 		HttpEntity<RequestJsonForThirdPartyApi> entity =
-				new HttpEntity<RequestJsonForThirdPartyApi>(requestJson, headers);
+				new HttpEntity<>(requestJson, headers);
 		ResponseJsonFromThirdPartyApi response =
 				restTemplate.postForEntity(URL, entity,
 						ResponseJsonFromThirdPartyApi.class).getBody();
