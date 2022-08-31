@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class RedisConfig {
 
-	// read on difference between lettuce and jedis.
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory () {
 		return new LettuceConnectionFactory();

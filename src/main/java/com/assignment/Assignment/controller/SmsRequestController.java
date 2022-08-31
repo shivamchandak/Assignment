@@ -29,7 +29,6 @@ public class SmsRequestController {
 	KafkaProducer kafkaProducer;
 	@Autowired
 	SmsRequestESService smsRequestESService;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SmsRequestController.class);
 
 	@PostMapping("v1/sms/send")
@@ -54,14 +53,13 @@ public class SmsRequestController {
 	}
 
 	@GetMapping("v1/sms/{requestId}")
-	public SmsRequest fetchSmsFromRequestId (
-			@PathVariable("requestId") Long requestId) throws SmsNotFoundException {
+	public SmsRequest fetchSmsFromRequestId (@PathVariable("requestId") Long requestId) throws SmsNotFoundException {
 		return smsRequestService.fetchSmsFromRequestId(requestId);
 	}
 
 	@PostMapping("v1/blacklist")
-	public ResponseEntity<String> addNumberToBlacklist (
-			@RequestBody BlacklistRequest blacklistedNumber) throws InvalidPhoneNumberException {
+	public ResponseEntity<String> addNumberToBlacklist (@RequestBody BlacklistRequest blacklistedNumber)
+			throws InvalidPhoneNumberException {
 		blacklistedService.addNumberToBlacklist(blacklistedNumber);
 		return ResponseEntity.ok("Number added to blacklist.");
 	}
@@ -72,19 +70,16 @@ public class SmsRequestController {
 	}
 
 	@DeleteMapping("v1/blacklist/{phoneNumber}")
-	public ResponseEntity<String> deleteBlacklistedNumberFromId (
-			@PathVariable("phoneNumber") String phoneNumber) {
+	public ResponseEntity<String> deleteBlacklistedNumberFromId (@PathVariable("phoneNumber") String phoneNumber) {
 		blacklistedService.deleteBlacklistedNumber(phoneNumber);
 		return ResponseEntity.ok("Number deleted from blacklist successfully!");
 	}
 
-	//  read on transactional.
-
 	@GetMapping("v1/getAllSmsInElasticSearch")
 	public List<SmsRequestElasticSearch> getAllSms () {
 		List<SmsRequestElasticSearch> smsRequest=new ArrayList<>();
-
 		Iterable<SmsRequestElasticSearch> iterable= smsRequestESService.findAll();
+
 		for(SmsRequestElasticSearch eachSms:iterable) {
 			smsRequest.add(eachSms);
 		}
@@ -92,21 +87,15 @@ public class SmsRequestController {
 	}
 
 	@PostMapping("v1/getAllSmsBetweenTimes")
-	public List<SmsRequestElasticSearch> getAllSmsBetweenTimes (
-			@RequestBody RequestBodyForTimeSearch requestBody) {
+	public List<SmsRequestElasticSearch> getAllSmsBetweenTimes (@RequestBody RequestBodyForTimeSearch requestBody) {
 		LOGGER.info("{}", requestBody);
-//		return smsRequestESRepository.findByPhoneNumberAndCreatedAtBetween(
-//				requestBody.getPhoneNumber(), requestBody.getStartTime(),
-//				requestBody.getEndTime(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
-
 		return smsRequestESService.findByPhoneNumberAndCreatedAtBetween(
-				requestBody.getPhoneNumber(), requestBody.getStartTime(),
-				requestBody.getEndTime(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
+				requestBody.getPhoneNumber(), requestBody.getStartTime(), requestBody.getEndTime(),
+				PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}
 
 	@PostMapping("v1/getAllSmsContainingText")
-	public List<SmsRequestElasticSearch> getAllSmsContainingText (
-			@RequestBody RequestBodyForTextSearch requestBody) {
+	public List<SmsRequestElasticSearch> getAllSmsContainingText (@RequestBody RequestBodyForTextSearch requestBody) {
 		return smsRequestESService.findByMessageContaining(
 				requestBody.getText(), PageRequest.of(requestBody.getPageNumber(), requestBody.getPageSize()));
 	}

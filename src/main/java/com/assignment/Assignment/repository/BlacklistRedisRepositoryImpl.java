@@ -4,13 +4,13 @@ import com.assignment.Assignment.entity.BlacklistDB;
 import com.assignment.Assignment.entity.BlacklistRequest;
 import com.assignment.Assignment.error.InvalidPhoneNumberException;
 import com.assignment.Assignment.service.BlacklistDbService;
+import com.assignment.Assignment.util.PhoneNumberCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,9 +19,9 @@ public class BlacklistRedisRepositoryImpl implements BlacklistRedisRepository {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
-
 	@Autowired
 	private BlacklistDbService blacklistDbService;
+	private PhoneNumberCheck phoneNumberCheck=new PhoneNumberCheck();
 	private static final String KEY = "BLACKLISTED";
 	private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistRedisRepositoryImpl.class);
 
@@ -31,8 +31,8 @@ public class BlacklistRedisRepositoryImpl implements BlacklistRedisRepository {
 		int index=-1, flag=0;
 		for (String phoneNumber : blacklistRequest.getPhoneNumbers()) {
 			index++;
-			int isValid=checkValidPhoneNumber(phoneNumber);
-			if(isValid==0) {
+			boolean isValid= phoneNumberCheck.isValidPhoneNumber(phoneNumber);
+			if(!isValid) {
 				flag=1;
 				invalidIndices.add(index);
 				continue;
@@ -46,7 +46,7 @@ public class BlacklistRedisRepositoryImpl implements BlacklistRedisRepository {
 			redisTemplate.opsForHash().put(KEY, phoneNumber, phoneNumber);
 			LOGGER.info(String.format("the phone number being added to blacklist redis is %s", phoneNumber));
 
-			// Adds blacklisted number to DB only if it is not already present.
+			// Adds blacklisted number to mysql db only if it is not already present.
 			if (!blacklistDbService.existsById(phoneNumber)) {
 				BlacklistDB blacklistDB = BlacklistDB.builder().id(phoneNumber).phoneNumber(phoneNumber).build();
 				blacklistDbService.save(blacklistDB);
@@ -72,27 +72,7 @@ public class BlacklistRedisRepositoryImpl implements BlacklistRedisRepository {
 	}
 
 	public boolean isPresentInBlacklist(String phoneNumber) {
+
 		return redisTemplate.opsForHash().hasKey(KEY, phoneNumber);
-	}
-
-	public int checkValidPhoneNumber (String phoneNumber) {
-		int length = phoneNumber.length();
-		int startIndex = 0, isValid = 1;
-		if (!(length == 10 || length == 13)) {
-			isValid = 0;
-		}
-
-		if (phoneNumber.charAt(0) == '+') {
-			startIndex = 1;
-			if (!phoneNumber.substring(1, 3).equals("91")) {
-				isValid = 0;
-			}
-		}
-		for (int i = startIndex; i < length; i++) {
-			if (phoneNumber.charAt(i) < '0' || phoneNumber.charAt(i) > '9') {
-				isValid = 0;
-			}
-		}
-		return isValid;
 	}
 }

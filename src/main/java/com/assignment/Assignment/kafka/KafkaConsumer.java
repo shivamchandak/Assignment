@@ -29,27 +29,20 @@ import java.util.ArrayList;
 public class KafkaConsumer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
-
 	@Autowired
 	SmsRequestRepository smsRequestRepository;
-
 	@Autowired
 	private RedisTemplate redisTemplate;
-
 	@Autowired
 	SmsRequestESRepository smsRequestESRepository;
-
 	@Autowired
 	BlacklistRedisRepositoryImpl blacklistedRepository;
 	private RestTemplate restTemplate = new RestTemplate();
 	private static final String KEY = "BLACKLISTED";
-
 	@Value("${topicName}")
 	private String topicName;
-
 	@Value("${URL}")
 	private String URL;
-
 	@Value("${apiKey}")
 	private String apiKey;
 
@@ -67,6 +60,7 @@ public class KafkaConsumer {
 		LOGGER.info(String.format("checking if number is blacklisted %s", phoneNumber));
 		LOGGER.info(String.format("blacklisted or not-> %s", redisTemplate.opsForHash().hasKey(KEY, phoneNumber)));
 
+		// Check if the number is blacklisted.
 		if (blacklistedRepository.isPresentInBlacklist(phoneNumber)) {
 			smsRequest.setStatus(SmsRequestStatus.valueOf("NUMBER_BLACKLISTED"));
 			smsRequestRepository.save(smsRequest);
@@ -125,7 +119,6 @@ public class KafkaConsumer {
 				.build();
 		ArrayList<Destination> destination = new ArrayList<>();
 		destination.add(dest);
-
 
 		RequestJsonForThirdPartyApi requestJson = RequestJsonForThirdPartyApi.builder()
 				.deliverychannel("sms")
