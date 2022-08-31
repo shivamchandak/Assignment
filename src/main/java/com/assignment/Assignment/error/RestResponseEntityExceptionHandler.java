@@ -36,4 +36,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 				exception.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
 	}
+
+	@ExceptionHandler(ThirdPartyApiException.class)
+	public ResponseEntity<ErrorMessage> thirdPartyApiException (
+			ThirdPartyApiException exception, WebRequest request) {
+		ErrorMessage message = new ErrorMessage(HttpStatus.BAD_REQUEST,
+				exception.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+	}
 }

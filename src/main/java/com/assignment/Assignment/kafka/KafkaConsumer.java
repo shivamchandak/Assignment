@@ -8,6 +8,7 @@ import com.assignment.Assignment.entity.requestJson.Destination;
 import com.assignment.Assignment.entity.requestJson.RequestJsonForThirdPartyApi;
 import com.assignment.Assignment.entity.requestJson.Sms;
 import com.assignment.Assignment.entity.responseJson.ResponseJsonFromThirdPartyApi;
+import com.assignment.Assignment.error.ThirdPartyApiException;
 import com.assignment.Assignment.repository.SmsRequestESRepository;
 import com.assignment.Assignment.repository.SmsRequestRepository;
 import com.assignment.Assignment.repository.BlacklistRedisRepositoryImpl;
@@ -16,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -48,7 +47,7 @@ public class KafkaConsumer {
 
 
 	@KafkaListener(topics = "notification.send_sms", groupId = "myConsumerGroup")
-	public void consume (String message) {
+	public void consume (String message) throws ThirdPartyApiException {
 
 		LOGGER.info(String.format("Request Id received -> %s", message));
 		LOGGER.info(String.format("Topic Name -> %s", topicName));
@@ -82,21 +81,13 @@ public class KafkaConsumer {
 
 		// Third party API call
 		ResponseJsonFromThirdPartyApi response = callThirdPartyApi(smsRequest);
-		String description = response.getResponse().get(0).getDescription();
-		smsRequest.setStatusCode(response.getResponse().get(0).getCode());
-		if (description.equalsIgnoreCase("queued")) {
-			smsRequest.setStatus(SmsRequestStatus.valueOf("QUEUED"));
-		} else {
-			smsRequest.setStatus(SmsRequestStatus.valueOf("ERROR_IN_CALLING_3P_API"));
-			smsRequest.setFailureComments(description);
-		}
-		smsRequestRepository.save(smsRequest);
+
 		LOGGER.info(String.format("the current sms status is: %s", smsRequest));
 		LOGGER.info(String.format("the response from 3P api is %s", response));
 
 	}
 
-	public ResponseJsonFromThirdPartyApi callThirdPartyApi (SmsRequest smsRequest) {
+	public ResponseJsonFromThirdPartyApi callThirdPartyApi (SmsRequest smsRequest) throws ThirdPartyApiException {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -128,9 +119,23 @@ public class KafkaConsumer {
 
 		HttpEntity<RequestJsonForThirdPartyApi> entity =
 				new HttpEntity<>(requestJson, headers);
-		ResponseJsonFromThirdPartyApi response =
-				restTemplate.postForEntity(URL, entity,
-						ResponseJsonFromThirdPartyApi.class).getBody();
-		return response;
+
+		ResponseEntity<ResponseJsonFromThirdPartyApi> response =
+				restTemplate.postForEntity(URL, entity, ResponseJsonFromThirdPartyApi.class);
+		LOGGER.info(String.format("the http status is %s", response.getStatusCode()));
+		if(response.getStatusCode() == HttpStatus.OK) {
+			smsRequest.setStatus(SmsRequestStatus.valueOf("QUEUED"));
+			smsRequest.setStatusCode(response.getStatusCode().toString());
+			smsRequestRepository.save(smsRequest);
+			return response.getBody();
+		}
+		else {
+			smsRequest.setStatus(SmsRequestStatus.valueOf("ERROR_IN_CALLING_3P_API"));
+			smsRequest.setStatusCode(response.getStatusCode().toString());
+			smsRequest.setFailureComments(response.toString());
+			smsRequestRepository.save(smsRequest);
+			throw new ThirdPartyApiException(String.format("the exception in 3P Api is:: %s", response.toString()));
+		}
+
 	}
 }
